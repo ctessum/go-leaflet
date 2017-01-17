@@ -114,3 +114,17 @@ func NewPolygon(latlngs []*LatLng) *Polygon {
 		},
 	}
 }
+
+// GridLayer is a leaflet GridLayer: http://leafletjs.com/reference-1.0.2.html#gridlayer.
+type GridLayer struct {
+	Layer
+}
+
+// NewGridLayer creates a new GridLayer.
+func NewGridLayer() *GridLayer {
+	return &GridLayer{
+		Layer: Layer{
+			Object: l.Call("gridLayer"),
+		},
+	}
+}
