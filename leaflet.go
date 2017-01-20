@@ -4,8 +4,8 @@ package leaflet
 
 import "github.com/gopherjs/gopherjs/js"
 
-// l is the primary leaflet javascript object.
-var l = js.Global.Get("L")
+// L is the primary leaflet javascript object.
+var L = js.Global.Get("L")
 
 // Map is a leaflet map object: http://leafletjs.com/reference-1.0.2.html#map
 type Map struct {
@@ -15,7 +15,7 @@ type Map struct {
 // NewMap creates a new map in the div specified by divID.
 func NewMap(divID string, options *MapOptions) *Map {
 	return &Map{
-		Object: l.Call("map", divID),
+		Object: L.Call("map", divID),
 	}
 }
 
@@ -63,7 +63,7 @@ type LatLng struct {
 // NewLatLng returns a new LatLng object.
 func NewLatLng(lat, lng float64) *LatLng {
 	return &LatLng{
-		Object: l.Call("latLng", lat, lng),
+		Object: L.Call("latLng", lat, lng),
 	}
 }
 
@@ -77,7 +77,7 @@ type TileLayer struct {
 func NewTileLayer(urlTemplate string, options *TileLayerOptions) *TileLayer {
 	return &TileLayer{
 		Layer: Layer{
-			Object: l.Call("tileLayer", urlTemplate, options),
+			Object: L.Call("tileLayer", urlTemplate, options),
 		},
 	}
 }
@@ -172,7 +172,7 @@ func NewPolygon(latlngs []*LatLng) *Polygon {
 		Polyline: Polyline{
 			Path: Path{
 				Layer: Layer{
-					Object: l.Call("polygon", latlngs),
+					Object: L.Call("polygon", latlngs),
 				},
 			},
 		},
@@ -188,7 +188,7 @@ type GridLayer struct {
 func NewGridLayer() *GridLayer {
 	return &GridLayer{
 		Layer: Layer{
-			Object: l.Call("gridLayer"),
+			Object: L.Call("gridLayer"),
 		},
 	}
 }
