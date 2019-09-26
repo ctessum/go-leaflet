@@ -1,52 +1,72 @@
+// +build js
+
 // Package glify is a wrapper for the glify javascipt LeafletJS plugin,
 // for use with gopherjs.
 package glify
 
 import (
+	"sync"
+	"syscall/js"
+
+	"github.com/norunners/vert"
+
+	"github.com/ctessum/geom/encoding/geojson"
 	leaflet "github.com/ctessum/go-leaflet"
-	"github.com/gopherjs/gopherjs/js"
 )
+
+func initialize() {
+	leaflet.Initialize()
+
+	doc := js.Global().Get("document")
+
+	glifyJSBytes, err := Asset("js/glify.js")
+	if err != nil {
+		panic(err)
+	}
+
+	// Load glify javascript.
+	script := doc.Call("createElement", "script")
+	script.Set("type", "text/javascript")
+	script.Set("text", string(glifyJSBytes))
+	doc.Get("head").Call("appendChild", script)
+}
+
+var initializeOnce sync.Once
+
+// Initialize this package dy loading the leaflet JS and CSS.
+func Initialize() {
+	initializeOnce.Do(initialize)
+}
 
 // Shapes is a wrapper for the shapes type.
 type Shapes struct {
-	Object *js.Object
+	js.Value
 }
 
 // NewShapes returns a new Shapes variable.
-func NewShapes(options *ShapeOptions) *Shapes {
+// colors should return the color of the shape at index i, where each color channel is in the range [0,1].
+func NewShapes(m *leaflet.Map, shapes *Geometry, colors func(i int) (r, g, b float64), opacity float64) *Shapes {
+	Initialize()
+	jsShapes := vert.ValueOf(shapes)
+	colorFunc := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		r, g, b := colors(args[0].Int())
+		return map[string]interface{}{"r": r, "g": g, "b": b}
+	})
+	options := map[string]interface{}{
+		"map":     m.Value,
+		"data":    jsShapes,
+		"color":   colorFunc,
+		"opacity": opacity,
+	}
 	return &Shapes{
-		Object: leaflet.L.Get("glify").Call("shapes", options),
+		Value: leaflet.L.Get("glify").Call("shapes", options),
 	}
 }
 
-// ShapeOptions holds the options for creating a new Shapes object
-// and should be initialized with DefaultShapeOptions.
-type ShapeOptions struct {
-	Object  *js.Object
-	Map     *leaflet.Map         `js:"map"`
-	Data    *js.Object           `js:"data"`
-	Color   func(index int) *RGB `js:"color"`
-	Opacity float64              `js:"opacity"` // number [0,1]
-}
-
-// DefaultShapeOptions returns the default ShapeOptions.
-func DefaultShapeOptions() *ShapeOptions {
-	return &ShapeOptions{
-		Object: js.Global.Get("Object").New(),
-	}
-}
-
-// RGB hold color information and should be initialized with NewRGB.
-type RGB struct {
-	Object *js.Object
-	R      float64 `js:"r"`
-	G      float64 `js:"g"`
-	B      float64 `js:"b"`
-}
-
-// NewRGB returns a new RGB variable.
-func NewRGB() *RGB {
-	return &RGB{
-		Object: js.Global.Get("Object").New(),
-	}
+type Geometry struct {
+	Type     string `json:"type",js:"type",`
+	Features []struct {
+		Type     string            `json:"type",js:"type"`
+		Geometry *geojson.Geometry `json:"geometry,js:"geometry"`
+	} `json:"features",js:"features"`
 }

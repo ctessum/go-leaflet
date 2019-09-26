@@ -43,6 +43,11 @@ func initialize() {
 
 var initializeOnce sync.Once
 
+// Initialize this package dy loading the leaflet JS and CSS.
+func Initialize() {
+	initializeOnce.Do(initialize)
+}
+
 // Map is a leaflet map object: http://leafletjs.com/reference-1.5.1.html#map
 type Map struct {
 	js.Value
@@ -57,7 +62,7 @@ func NewMap(div js.Value, options map[string]interface{}) *Map {
 	if nodeName := div.Get("nodeName").String(); nodeName != "DIV" {
 		panic("leaflet: map div nodeName should be DIV but is " + nodeName)
 	}
-	initializeOnce.Do(initialize)
+	Initialize()
 	return &Map{
 		Value: L.Call("map", div, options),
 	}
@@ -91,6 +96,7 @@ type LatLng struct {
 
 // NewLatLng returns a new LatLng object.
 func NewLatLng(lat, lng float64) *LatLng {
+	Initialize()
 	return &LatLng{
 		Value: L.Call("latLng", lat, lng),
 	}
@@ -104,6 +110,7 @@ type TileLayer struct {
 // NewTileLayer creates a new TileLayer with the specified URL template and
 // options.
 func NewTileLayer(urlTemplate string, options map[string]interface{}) *TileLayer {
+	Initialize()
 	return &TileLayer{
 		Layer: Layer{
 			Value: L.Call("tileLayer", urlTemplate, options),
@@ -144,6 +151,7 @@ type Polygon struct {
 
 // NewPolygon creates a new polygon.
 func NewPolygon(latlngs []*LatLng) *Polygon {
+	Initialize()
 	return &Polygon{
 		Polyline: Polyline{
 			Path: Path{
@@ -162,6 +170,7 @@ type GridLayer struct {
 
 // NewGridLayer creates a new GridLayer.
 func NewGridLayer() *GridLayer {
+	Initialize()
 	return &GridLayer{
 		Layer: Layer{
 			Value: L.Call("gridLayer"),
