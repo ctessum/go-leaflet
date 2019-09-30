@@ -44,10 +44,11 @@ type Shapes struct {
 }
 
 // NewShapes returns a new Shapes variable.
+// The 'shapes' argument specifies the geometry, it should be GeoJSON formatted,
+// for example using the Geometry object in this package.
 // colors should return the color of the shape at index i, where each color channel is in the range [0,1].
-func NewShapes(m *leaflet.Map, shapes *Geometry, colors func(i int) (r, g, b float64), opacity float64) *Shapes {
+func NewShapes(m *leaflet.Map, shapes js.Value, colors func(i int) (r, g, b float64), opacity float64) *Shapes {
 	Initialize()
-	jsShapes := vert.ValueOf(shapes)
 	colorFunc := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		r, g, b := colors(args[0].Int())
 		return map[string]interface{}{"r": r, "g": g, "b": b}
@@ -69,4 +70,8 @@ type Geometry struct {
 		Type     string            `json:"type",js:"type"`
 		Geometry *geojson.Geometry `json:"geometry,js:"geometry"`
 	} `json:"features",js:"features"`
+}
+
+func (g *Geometry) ToJS() js.Value {
+	return vert.ValueOf(g)
 }
