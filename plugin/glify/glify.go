@@ -64,6 +64,10 @@ func NewShapes(m *leaflet.Map, shapes js.Value, colors func(i int) (r, g, b floa
 	}
 }
 
+func (s *Shapes) Remove() {
+	s.Value.Call("remove")
+}
+
 type Geometry struct {
 	Type     string `json:"type",js:"type",`
 	Features []struct {
