@@ -56,5 +56,5 @@ func TestNewShapes(t *testing.T) {
 		return
 	}
 	opacity := 1.0
-	NewShapes(m, g, colorF, opacity)
+	NewShapes(m, g.ToJS(), colorF, opacity)
 }

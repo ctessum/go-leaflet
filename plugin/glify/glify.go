@@ -55,7 +55,7 @@ func NewShapes(m *leaflet.Map, shapes js.Value, colors func(i int) (r, g, b floa
 	})
 	options := map[string]interface{}{
 		"map":     m.Value,
-		"data":    jsShapes,
+		"data":    shapes,
 		"color":   colorFunc,
 		"opacity": opacity,
 	}
@@ -77,5 +77,5 @@ type Geometry struct {
 }
 
 func (g *Geometry) ToJS() js.Value {
-	return vert.ValueOf(g)
+	return vert.ValueOf(g).JSValue()
 }
