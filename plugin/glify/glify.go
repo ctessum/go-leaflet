@@ -1,7 +1,7 @@
 // +build js
 
 // Package glify is a wrapper for the glify javascipt LeafletJS plugin,
-// for use with gopherjs.
+// for use with web assembly.
 package glify
 
 import (
