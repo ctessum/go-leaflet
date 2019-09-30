@@ -14,9 +14,19 @@ import (
 func TestNewShapes(t *testing.T) {
 	doc := js.Global().Get("document")
 	elem := doc.Call("createElement", "div")
-	elem.Set("width", 100)
+	elem.Get("style").Set("width", 100)
+	elem.Get("style").Set("height", 100)
 	doc.Get("body").Call("appendChild", elem)
+
 	m := leaflet.NewMap(elem, map[string]interface{}{"preferCanvas": true})
+	m.SetView(leaflet.NewLatLng(39.8282, -98.5795), 4)
+
+	pane := m.CreatePane("labels")
+	pane.SetZIndex(650)
+	options := make(map[string]interface{})
+	options["Attribution"] = `Map data &copy; <a href=\"http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>`
+	options["Pane"] = "labels"
+
 	shapes := []geom.Polygon{
 		{{{0, 0}, {1, 1}, {0, 1}}},
 		{{{1, 0}, {2, 1}, {1, 1}}},
